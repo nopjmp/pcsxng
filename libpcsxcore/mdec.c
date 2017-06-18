@@ -32,7 +32,7 @@
  * 320x240x16@60Hz => 9.216 MB/s
  * so 2.0 to 4.0 should be fine.
  */
-#define MDEC_BIAS 2.0f
+#define MDEC_BIAS 2
 
 #define DSIZE			8
 #define DSIZE2			(DSIZE * DSIZE)
@@ -524,15 +524,21 @@ void psxDma0(u32 adr, u32 bcr, u32 chcr) {
 			// printf("mdec unknown command\n");
 			break;
 	}
-
-	HW_DMA0_CHCR &= SWAP32(~0x01000000);
-	DMA_INTERRUPT(0);
+	
+	if (HW_DMA0_CHCR & SWAP32(0x01000000))
+	{
+		HW_DMA0_CHCR &= SWAP32(~0x01000000);
+		DMA_INTERRUPT(0);
+	}
 }
 
 void mdec0Interrupt()
 {
-	HW_DMA0_CHCR &= SWAP32(~0x01000000);
-	DMA_INTERRUPT(0);
+	if (HW_DMA0_CHCR & SWAP32(0x01000000))
+	{
+		HW_DMA0_CHCR &= SWAP32(~0x01000000);
+		DMA_INTERRUPT(0);
+	}
 }
 
 #define SIZE_OF_24B_BLOCK (16*16*3)
@@ -622,7 +628,7 @@ void psxDma1(u32 adr, u32 bcr, u32 chcr) {
 	}
 	
 	/* define the power of mdec */
-	MDECOUTDMA_INT((int) ((dmacnt* MDEC_BIAS)));
+	MDECOUTDMA_INT(dmacnt* MDEC_BIAS);
 	}
 }
 
@@ -651,22 +657,21 @@ void mdec1Interrupt() {
 	 *
 	 */
 
-	/* this else if avoid to read outside memory */
-	if(mdec.rl >= mdec.rl_end) {
-		mdec.reg1 &= ~MDEC1_STP;
-		HW_DMA0_CHCR &= SWAP32(~0x01000000);
-		DMA_INTERRUPT(0);
-		mdec.reg1 &= ~MDEC1_BUSY;
-	} else if (SWAP16(*(mdec.rl)) == MDEC_END_OF_DATA) {
-		mdec.reg1 &= ~MDEC1_STP;
-		HW_DMA0_CHCR &= SWAP32(~0x01000000);
-		DMA_INTERRUPT(0);
-		mdec.reg1 &= ~MDEC1_BUSY;
+	/* MDEC_END_OF_DATA avoids read outside memory */
+	if (mdec.rl >= mdec.rl_end || SWAP16(*(mdec.rl)) == MDEC_END_OF_DATA) {
+		mdec.reg1 &= ~(MDEC1_STP|MDEC1_BUSY);
+		if (HW_DMA0_CHCR & SWAP32(0x01000000))
+		{
+			HW_DMA0_CHCR &= SWAP32(~0x01000000);
+			DMA_INTERRUPT(0);
+		}
 	}
 
-	HW_DMA1_CHCR &= SWAP32(~0x01000000);
-	DMA_INTERRUPT(1);
-	return;
+	if (HW_DMA1_CHCR & SWAP32(0x01000000))
+	{
+		HW_DMA1_CHCR &= SWAP32(~0x01000000);
+		DMA_INTERRUPT(1);
+	}
 }
 
 int mdecFreeze(gzFile f, int Mode) {
