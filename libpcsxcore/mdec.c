@@ -548,15 +548,13 @@ void psxDma1(u32 adr, u32 bcr, u32 chcr) {
 	int blk[DSIZE2 * 6];
 	u8 * image;
 	int size;
-	int dmacnt;
+	u32 words;
 
 	if (chcr != 0x01000200) return;
 
-	size = (bcr >> 16) * (bcr & 0xffff);
+	words = (bcr >> 16) * (bcr & 0xffff);
 	/* size in byte */
-	size *= 4;
-	/* I guess the memory speed is limitating */
-	dmacnt = size;
+	size = words * 4;
 
 	if (!(mdec.reg1 & MDEC1_BUSY)) {
 		/* add to pending */
@@ -628,7 +626,7 @@ void psxDma1(u32 adr, u32 bcr, u32 chcr) {
 	}
 	
 	/* define the power of mdec */
-	MDECOUTDMA_INT(dmacnt* MDEC_BIAS);
+	MDECOUTDMA_INT(words * MDEC_BIAS);
 	}
 }
 

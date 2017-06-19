@@ -18,7 +18,7 @@
  ***************************************************************************/
 
 /*
-* i386 assembly functions for R3000A core.
+* amd64 assembly functions for R3000A core.
 */
 
 #ifdef __x86_64__
@@ -42,19 +42,19 @@ uptr* psxRecLUT;
 #undef PC_REC16
 #undef PC_REC32
 #define PC_REC(x)	(psxRecLUT[(x) >> 16] + PTRMULT * ((x) & 0xffff))
-#define PC_RECP(x) (*(uptr *)PC_REC(x))
+#define PC_RECP(x)	(*(uptr *)PC_REC(x))
 
-#define RECMEM_SIZE		(PTRMULT * 8 * 1024 * 1024)
+#define RECMEM_SIZE	(PTRMULT * 8 * 1024 * 1024)
 
 static char *recMem;	/* the recompiled blocks will be here */
 static char *recRAM;	/* and the ptr to the blocks here */
 static char *recROM;	/* and here */
 
-static u32 pc;			/* recompiler pc */
-static u32 pcold;		/* recompiler oldpc */
-static int count;		/* recompiler intruction count */
-static int branch;		/* set for branch */
-static u32 target;		/* branch target */
+static u32 pc;		/* recompiler pc */
+static u32 pcold;	/* recompiler oldpc */
+static int count;	/* recompiler intruction count */
+static int branch;	/* set for branch */
+static u32 target;	/* branch target */
 static u32 resp;
 
 typedef struct {
@@ -84,11 +84,7 @@ static void (*recCP2BSC[32])();
 #define STACKSIZE		0x18
 static void StackRes()
 {
-#ifdef __x86_64__
 	ADD64ItoR(RSP, STACKSIZE);
-#else
-	if (resp) ADD32ItoR(ESP, resp);
-#endif
 }
 
 int dump = FALSE;
@@ -1308,29 +1304,12 @@ REC_FUNC(SWR);
 
 static void SetArg_OfB(x86IntRegType arg) {
 	if (IsConst(_Rs_))
-#ifdef __x86_64__
 		MOV64ItoR(arg, iRegs[_Rs_].k + _Imm_);
-#else
-		PUSH32I  (iRegs[_Rs_].k + _Imm_);
-#endif
 	else {
-#ifdef __x86_64__
 		MOV32MtoR(arg, (uptr)&psxRegs.GPR.r[_Rs_]);
 		if (_Imm_)
 			ADD32ItoR(arg, _Imm_);
-#else
-		if (_Imm_) {
-			MOV32MtoR(EAX, (u32)&psxRegs.GPR.r[_Rs_]);
-			ADD32ItoR(EAX, _Imm_);
-			PUSH32R  (EAX);
-		} else {
-			PUSH32M  ((u32)&psxRegs.GPR.r[_Rs_]);
-		}
-#endif
 	}
-#ifndef __x86_64__
-	resp += 4;
-#endif
 }
 
 #if 1
@@ -1799,9 +1778,6 @@ static void recLWBlock(int count) {
 		psxRegs.code = *code;
 		recLW();
 	}
-#ifndef __x86_64__
-	ADD32ItoR(ESP, resp);
-#endif
 	x86SetJ32(j32Ptr[5]);
 	resp = respsave;
 }

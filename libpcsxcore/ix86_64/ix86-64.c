@@ -16,8 +16,6 @@
 #include <assert.h>
 #include "ix86-64.h"
 
-#ifdef __x86_64__
-
 #ifdef _MSC_VER
 // visual studio calling convention
 x86IntRegType g_x86savedregs[] = { RBX, RBP, RSI, RDI, R12, R13, R14, R15 };
@@ -41,8 +39,6 @@ x86IntRegType g_x86allregs[14] = { RBX, RBP, R12, R13, R14, R15, RCX, RDX, R8, R
 
 x86IntRegType g_x868bitregs[11] = { RBX, R12, R13, R14, R15, RCX, RDX, R8, R9, R10, R11 };
 x86IntRegType g_x86non8bitregs[3] = { RBP, RSI, RDI };
-
-#endif // __x86_64__
 
 s8  *x86Ptr;
 u8  *j8Ptr[32];
@@ -140,7 +136,6 @@ void writeVAROP(unsigned opl, u64 op)
 
 void MEMADDR_OP(bool w, unsigned opl, u64 op, bool isreg, int reg, uptr p, sptr off)
 {
-#ifdef __x86_64__
 	sptr pr = MEMADDR_(p, 5 + opl + (w || reg >= 8) + off);
 	if (SPTR32(pr))
 	{
@@ -162,11 +157,6 @@ void MEMADDR_OP(bool w, unsigned opl, u64 op, bool isreg, int reg, uptr p, sptr 
 		writeVARROP(RexRB(w, reg, X86_TEMP), opl, op);
 		ModRM(0, reg, X86_TEMP);
 	}
-#else
-	writeVARROP(RexR(w, reg), opl, op);
-	ModRM(0, reg, DISP32);
-	write32(p);
-#endif
 }
 
 void SET8R( int cc, int to )
@@ -787,23 +777,23 @@ void MOVSX32M16toR( x86IntRegType to, uptr from )
 /* movzx r8 to r32 */
 void MOVZX32R8toR( x86IntRegType to, x86IntRegType from ) 
 {
-    RexRB(0,to,from);
+	RexRB(0,to,from);
 	write16( 0xB60F ); 
 	ModRM( 3, to, from ); 
 }
 
 void MOVZX32Rm8toR( x86IntRegType to, x86IntRegType from )
 {
-    RexRB(0,to,from);
+	RexRB(0,to,from);
 	write16( 0xB60F ); 
 	ModRM( 0, to, from );
 }
 
 void MOVZX32Rm8toROffset( x86IntRegType to, x86IntRegType from, int offset )
 {
-    RexRB(0,to,from);
+	RexRB(0,to,from);
 	write16( 0xB60F );
-    WriteRmOffsetFrom(to,from,offset);
+	WriteRmOffsetFrom(to,from,offset);
 }
 
 /* movzx m8 to r32 */
@@ -815,7 +805,7 @@ void MOVZX32M8toR( x86IntRegType to, uptr from )
 /* movzx r16 to r32 */
 void MOVZX32R16toR( x86IntRegType to, x86IntRegType from ) 
 {
-    RexRB(0,to,from);
+	RexRB(0,to,from);
 	write16( 0xB70F ); 
 	ModRM( 3, to, from ); 
 }
@@ -839,8 +829,6 @@ void MOVZX32M16toR( x86IntRegType to, uptr from )
 {
 	MEMADDR_OP(0, VAROP2(0x0F, 0xB7), true, to, from, 0);
 }
-
-#ifdef __x86_64__
 
 /* movzx r8 to r64 */
 void MOVZX64R8toR( x86IntRegType to, x86IntRegType from ) 
@@ -897,7 +885,6 @@ void MOVZX64M16toR( x86IntRegType to, uptr from )
 {
 	MEMADDR_OP(1, VAROP2(0x0F, 0xB7), true, to, from, 0);
 }
-#endif
 
 /* cmovbe r32 to r32 */
 void CMOVBE32RtoR( x86IntRegType to, x86IntRegType from )
@@ -1274,20 +1261,12 @@ void ADC32RtoM( uptr to, x86IntRegType from )
 }
 
 
-#ifdef __x86_64__
 void INC32R( x86IntRegType to ) 
 {
 	write8( 0xFF );
 	ModRM(3,0,to);	
 }
-#else
-/* inc r32 */
-void INC32R( x86IntRegType to ) 
-{
-    X86_64ASSERT();
-	write8( 0x40 + to );
-}
-#endif
+
 /* inc m32 */
 void INC32M( uptr to ) 
 {
@@ -1465,20 +1444,11 @@ void SBB32RtoM( uptr to, x86IntRegType from )
 	MEMADDR_OP(0, VAROP1(0x19), true, from, to, 0);
 }
 
-#ifdef __x86_64__
 void DEC32R( x86IntRegType to ) 
 {
 	write8( 0xFF );
 	ModRM(3,1,to);	
 }
-#else
-/* dec r32 */
-void DEC32R( x86IntRegType to ) 
-{
-    X86_64ASSERT();
-	write8( 0x48 + to );
-}
-#endif
 
 /* dec m32 */
 void DEC32M( uptr to ) 
@@ -1489,7 +1459,7 @@ void DEC32M( uptr to )
 /* dec r16 */
 void DEC16R( x86IntRegType to ) 
 {
-    X86_64ASSERT();
+	X86_64ASSERT();
 	write8( 0x66 );
 	write8( 0x48 + to );
 }
@@ -1511,7 +1481,7 @@ void MUL32R( x86IntRegType from )
 /* imul eax by r32 to edx:eax */
 void IMUL32R( x86IntRegType from ) 
 {
-    RexB(0,from);
+	RexB(0,from);
 	write8( 0xF7 ); 
 	ModRM( 3, 5, from );
 }
@@ -1547,7 +1517,7 @@ void DIV32R( x86IntRegType from )
 /* idiv eax by r32 to edx:eax */
 void IDIV32R( x86IntRegType from ) 
 {
-    RexB(0,from);
+	RexB(0,from);
 	write8( 0xF7 ); 
 	ModRM( 3, 7, from );
 }
@@ -1571,7 +1541,7 @@ void IDIV32M( uptr from )
 /* shl imm8 to r64 */
 void SHL64ItoR( x86IntRegType to, u8 from ) 
 {
-    RexB(1, to);
+	RexB(1, to);
 	if ( from == 1 )
 	{
 		write8( 0xD1 );
@@ -2953,8 +2923,6 @@ void PUSH32I( u32 from )
    write32( from ); 
 }
 
-#ifdef __x86_64__
-
 /* push r64 */
 void PUSH64R( x86IntRegType from ) 
 {
@@ -2979,32 +2947,6 @@ void POP64R( x86IntRegType from )  {
 void PUSHR(x86IntRegType from) { PUSH64R(from); }
 void POPR(x86IntRegType from) { POP64R(from); }
 
-#else
-
-/* push r32 */
-void PUSH32R( x86IntRegType from )  { write8( 0x50 | from ); }
-
-/* push m32 */
-void PUSH32M( uptr from ) 
-{
-	MEMADDR_OP(0, VAROP1(0xFF), false, 6, from, 0);
-}
-
-/* pop r32 */
-void POP32R( x86IntRegType from ) { write8( 0x58 | from ); }
-
-/* pushad */
-void PUSHA32( void ) { write8( 0x60 ); }
-
-/* popad */
-void POPA32( void ) { write8( 0x61 ); }
-
-void PUSHR(x86IntRegType from) { PUSH32R(from); }
-void POPR(x86IntRegType from) { POP32R(from); }
-
-#endif
-
-
 /* pushfd */
 void PUSHFD( void ) { write8( 0x9C ); }
 /* popfd */
@@ -3018,9 +2960,7 @@ void CWD( void )  { write8( 0x98 ); }
 void CDQ( void ) { write8( 0x99 ); }
 void CWDE() { write8(0x98); }
 
-#ifdef __x86_64__
 void CDQE( void ) { RexR(1,0); write8( 0x98 ); }
-#endif
 
 void LAHF() { write8(0x9f); }
 void SAHF() { write8(0x9e); }

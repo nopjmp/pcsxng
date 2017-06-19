@@ -47,15 +47,15 @@ extern R3000Acpu psxRec;
 
 typedef union {
 #if defined(__BIGENDIAN__)
-	struct { u8 h3, h2, h, l; } b;
-	struct { s8 h3, h2, h, l; } sb;
-	struct { u16 h, l; } w;
-	struct { s16 h, l; } sw;
+	struct { u8	h3, h2, h, l; } b;
+	struct { s8	h3, h2, h, l; } sb;
+	struct { u16	h, l; } w;
+	struct { s16	h, l; } sw;
 #else
-	struct { u8 l, h, h2, h3; } b;
-	struct { u16 l, h; } w;
-	struct { s8 l, h, h2, h3; } sb;
-	struct { s16 l, h; } sw;
+	struct { u8	l, h, h2, h3; } b;
+	struct { u16	l, h; } w;
+	struct { s8	l, h, h2, h3; } sb;
+	struct { s16	l, h; } sw;
 #endif
 	u32 d;
 	s32 sd;
@@ -63,10 +63,10 @@ typedef union {
 
 typedef union {
 	struct {
-		u32   r0, at, v0, v1, a0, a1, a2, a3,
-						t0, t1, t2, t3, t4, t5, t6, t7,
-						s0, s1, s2, s3, s4, s5, s6, s7,
-						t8, t9, k0, k1, gp, sp, s8, ra, lo, hi;
+	  u32	r0, at, v0, v1, a0, a1, a2, a3,
+		t0, t1, t2, t3, t4, t5, t6, t7,
+		s0, s1, s2, s3, s4, s5, s6, s7,
+		t8, t9, k0, k1, gp, sp, s8, ra, lo, hi;
 	} n;
 	u32 r[34]; /* Lo, Hi in r[32] and r[33] */
 	PAIR p[34];
@@ -74,14 +74,14 @@ typedef union {
 
 typedef union {
 	struct {
-		u32	Index,     Random,    EntryLo0,  BPC,
-				Context,   BDA,       PIDMask,   DCIC,
-				BadVAddr,  BDAM,      EntryHi,   BPCM,
-				Status,    Cause,     EPC,       PRid,
-				Config,    LLAddr,    WatchLO,   WatchHI,
-				XContext,  Reserved1, Reserved2, Reserved3,
-				Reserved4, Reserved5, ECC,       CacheErr,
-				TagLo,     TagHi,     ErrorEPC,  Reserved6;
+	  u32	Index,     Random,    EntryLo0,  BPC,
+		Context,   BDA,       PIDMask,   DCIC,
+		BadVAddr,  BDAM,      EntryHi,   BPCM,
+		Status,    Cause,     EPC,       PRid,
+		Config,    LLAddr,    WatchLO,   WatchHI,
+		XContext,  Reserved1, Reserved2, Reserved3,
+		Reserved4, Reserved5, ECC,       CacheErr,
+		TagLo,     TagHi,     ErrorEPC,  Reserved6;
 	} n;
 	u32 r[32];
 } psxCP0Regs;

@@ -51,8 +51,6 @@ int psxInit() {
 }
 
 void psxReset() {
-	psxCpu->Reset();
-
 	psxMemReset();
 
 	memset(&psxRegs, 0, sizeof(psxRegs));
@@ -61,6 +59,8 @@ void psxReset() {
 
 	psxRegs.CP0.r[12] = 0x10900000; // COP0 enabled | BEV = 1 | TS = 1
 	psxRegs.CP0.r[15] = 0x00000002; // PRevID = Revision ID, same as R3000A
+
+	psxCpu->Reset();
 
 	psxHwReset();
 	psxBiosInit();
@@ -237,35 +237,27 @@ void psxJumpTest() {
 		u32 call = psxRegs.GPR.n.t1 & 0xff;
 		switch (psxRegs.pc & 0x1fffff) {
 			case 0xa0:
+#ifdef PSXBIOS_LOG
+				if (call != 0x28 && call != 0xe) {
+					PSXBIOS_LOG("Bios call a0: %s (%x) %x,%x,%x,%x\n", biosA0n[call], call, psxRegs.GPR.n.a0, psxRegs.GPR.n.a1, psxRegs.GPR.n.a2, psxRegs.GPR.n.a3); }
+#endif
 				if (biosA0[call])
 					biosA0[call]();
-				else if (call != 0x28 && call != 0xe) {
-#ifdef PSXBIOS_LOG
-					PSXBIOS_LOG("Bios call a0: %s (%x) %x,%x,%x,%x\n", biosA0n[call], call,
-							psxRegs.GPR.n.a0, psxRegs.GPR.n.a1, psxRegs.GPR.n.a2, psxRegs.GPR.n.a3);
-#endif
-			}
 				break;
 			case 0xb0:
+#ifdef PSXBIOS_LOG
+				if (call != 0x17 && call != 0xb) {
+					PSXBIOS_LOG("Bios call b0: %s (%x) %x,%x,%x,%x\n", biosB0n[call], call, psxRegs.GPR.n.a0, psxRegs.GPR.n.a1, psxRegs.GPR.n.a2, psxRegs.GPR.n.a3); }
+#endif
 				if (biosB0[call])
 					biosB0[call]();
-                else if (call != 0x17 && call != 0xb) {
-#ifdef PSXBIOS_LOG
-					PSXBIOS_LOG("Bios call b0: %s (%x) %x,%x,%x,%x\n", biosB0n[call], call,
-							psxRegs.GPR.n.a0, psxRegs.GPR.n.a1, psxRegs.GPR.n.a2, psxRegs.GPR.n.a3);
-#endif
-			}
 				break;
 			case 0xc0:
-			if (biosC0[call])
-				biosC0[call]();
-            else {
 #ifdef PSXBIOS_LOG
-					PSXBIOS_LOG("Bios call c0: %s (%x) %x,%x,%x,%x\n", biosC0n[call], call,
-							psxRegs.GPR.n.a0, psxRegs.GPR.n.a1, psxRegs.GPR.n.a2, psxRegs.GPR.n.a3);
+				PSXBIOS_LOG("Bios call c0: %s (%x) %x,%x,%x,%x\n", biosC0n[call], call, psxRegs.GPR.n.a0, psxRegs.GPR.n.a1, psxRegs.GPR.n.a2, psxRegs.GPR.n.a3);
 #endif
-			}
-
+				if (biosC0[call])
+					biosC0[call]();
 				break;
 		}
 	}

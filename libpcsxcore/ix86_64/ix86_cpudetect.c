@@ -130,18 +130,13 @@ u64 GetCPUTick( void )
 {
 #if defined (_MSC_VER) && _MSC_VER >= 1400
 
-   return __rdtsc();
-
+	return __rdtsc();
 #elif defined(__MSCW32__) && !defined(__x86_64__)
-
-   __asm rdtsc;
-
+   	__asm rdtsc;
 #else
-
-   u32 _a, _d;
+	u32 _a, _d;
 	__asm__ __volatile__ ("rdtsc" : "=a"(_a), "=d"(_d));
 	return (u64)_a | ((u64)_d << 32);
-
 #endif
 }
 
@@ -152,9 +147,9 @@ u64 GetCPUTick( void )
 //*
 unsigned long timeGetTime2()
 {
- struct timeval tv;
- gettimeofday(&tv, 0);                                 // well, maybe there are better ways
- return (unsigned long)tv.tv_sec * 1000 + tv.tv_usec/1000;            // to do that, but at least it works
+	struct timeval tv;
+	gettimeofday(&tv, 0);						// well, maybe there are better ways
+	return (unsigned long)tv.tv_sec * 1000 + tv.tv_usec/1000;	// to do that, but at least it works
 }
 //*/
 #endif
