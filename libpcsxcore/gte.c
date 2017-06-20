@@ -6,7 +6,6 @@
  */
 
 #include "gte.h"
-#include "gte_divider.h"
 #include "psxmem.h"
 
 #define GTE_SF(op) ((op >> 19) & 1)
@@ -296,8 +295,6 @@ s32 BOUNDS(/*int44*/s64 value, int max_flag, int min_flag) {
 	return gte_shift(value/*.value()*/, m_sf);
 }
 
-// using gte_divisor.h
-#if 0
 u32 gte_divide( u16 numerator, u16 denominator )
 {
 	if( numerator < ( denominator * 2 ) )
@@ -335,7 +332,6 @@ u32 gte_divide( u16 numerator, u16 denominator )
 
 	return 0xffffffff;
 }
-#endif
 
 /* Setting bits 12 & 19-22 in FLAG does not set bit 31 */
 
