@@ -894,7 +894,7 @@ void psxBios_malloc() { // 0x33
 		// split free chunk
 		*chunk = SWAP32(dsize);
 		newchunk = (u32*)((uptr)chunk + dsize + 4);
-		*newchunk = SWAP32((csize - dsize - 4) & 0xfffffffc | 1);
+		*newchunk = SWAP32(((csize - dsize - 4) & 0xfffffffc) | 1);
 	}
 
 	// return pointer to allocated memory
