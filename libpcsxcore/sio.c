@@ -1202,15 +1202,23 @@ void ConvertMcd(char *mcd, char *data) {
 }
 
 void GetMcdBlockInfo(int mcd, int block, McdBlock *Info) {
-	unsigned char *data = NULL, *ptr, *str, *sstr;
+	char *data = NULL, *ptr, *str, *sstr;
 	unsigned short clut[16];
 	unsigned short c;
 	int i, x;
 
 	memset(Info, 0, sizeof(McdBlock));
 
-	if (mcd == 1) data = Mcd1Data;
-	if (mcd == 2) data = Mcd2Data;
+	switch(mcd) {
+	case 1:
+		data = Mcd1Data;
+		break;
+	case 2: data = Mcd2Data;
+		break;
+	default:
+		// TODO: assert or throw an error here
+		return;
+	}
 
 	ptr = data + block * 8192 + 2;
 
