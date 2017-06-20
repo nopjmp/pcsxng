@@ -79,6 +79,10 @@ int psxMemInit() {
 		return -1;
 	}
 
+#if defined(__linux__)
+	madvise(psxM, 0x00220000, MADV_HUGEPAGE);
+#endif
+
 // MemR
 	for (i = 0; i < 0x80; i++) psxMemRLUT[i + 0x0000] = (u8 *)&psxM[(i & 0x1f) << 16];
 

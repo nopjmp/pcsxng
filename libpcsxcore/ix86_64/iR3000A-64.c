@@ -468,9 +468,11 @@ static int recInit() {
 	if (recRAM == NULL || recROM == NULL || recMem == NULL || psxRecLUT == NULL) {
 		SysMessage("Error allocating memory"); return -1;
 	}
-	memset(recMem, 0, RECMEM_SIZE);
-	memset(recRAM, 0, 0x200000 * PTRMULT);
-	memset(recROM, 0, 0x080000 * PTRMULT);
+#if defined(__linux__)
+	madvise(recMem, RECMEM_SIZE + PTRMULT * 0x1000, MADV_HUGEPAGE);
+	madvise(recRAM, 0x280000 * PTRMULT, MADV_HUGEPAGE);
+#endif
+
 
 	for (i=0; i<0x80; i++) psxRecLUT[i + 0x0000] = (uptr)&recRAM[PTRMULT*((i & 0x1f) << 16)];
 	memcpy(psxRecLUT + 0x8000, psxRecLUT, 0x80 * sizeof(uptr));
@@ -478,8 +480,8 @@ static int recInit() {
 
 	for (i=0; i<0x08; i++) psxRecLUT[i + 0xbfc0] = (uptr)&recROM[PTRMULT*(i << 16)];
 
-    //x86Init();
-    cpudetectInit();
+	//x86Init();
+	cpudetectInit();
 
 	return 0;
 }
@@ -499,8 +501,8 @@ static void recReset() {
 static void recShutdown() {
 	if (recMem == NULL) return;
 	free(psxRecLUT);
-	munmap(recMem, RECMEM_SIZE + PTRMULT*0x1000);
-	munmap(recRAM, 0x280000*PTRMULT);
+	munmap(recMem, RECMEM_SIZE + PTRMULT * 0x1000);
+	munmap(recRAM, 0x280000 * PTRMULT);
 	x86Shutdown();
 }
 
@@ -1512,10 +1514,10 @@ static void recLHU() {
 					iRegs[_Rt_].state = ST_UNK;
 
 					MOV64ItoR(X86ARG1, (addr >> 4) & 0x3);
-                    CALLFunc((uptr)psxRcntRmode);
-                    MOVZX32R16toR(EAX, EAX);
+					CALLFunc((uptr)psxRcntRmode);
+					MOVZX32R16toR(EAX, EAX);
 					MOV32RtoM((uptr)&psxRegs.GPR.r[_Rt_], EAX);
-                    resp+= 4;
+					resp+= 4;
 					return;
 
 				case 0x1f801108: case 0x1f801118: case 0x1f801128:
@@ -1523,10 +1525,10 @@ static void recLHU() {
 					iRegs[_Rt_].state = ST_UNK;
 
 					MOV64ItoR(X86ARG1, (addr >> 4) & 0x3);
-                    CALLFunc((uptr)psxRcntRtarget);
-                    MOVZX32R16toR(EAX, EAX);
+					CALLFunc((uptr)psxRcntRtarget);
+					MOVZX32R16toR(EAX, EAX);
 					MOV32RtoM((uptr)&psxRegs.GPR.r[_Rt_], EAX);
-                    resp+= 4;
+					resp+= 4;
 					return;
 			}
 		}

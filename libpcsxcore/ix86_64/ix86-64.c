@@ -394,9 +394,9 @@ void MOV64RmStoR( x86IntRegType to, x86IntRegType from, x86IntRegType from2, int
 /* mov r64 to [r64+offset] */
 void MOV64RtoRmOffset( x86IntRegType to, x86IntRegType from, int offset )
 {
-    RexRB(1,from,to);
+	RexRB(1,from,to);
 	write8( 0x89 );
-    WriteRmOffsetFrom(from, to, offset);
+	WriteRmOffsetFrom(from, to, offset);
 }
 
 /* mov r64 to [r64][r64*scale] */
@@ -1509,7 +1509,7 @@ void IMUL32RtoR( x86IntRegType to, x86IntRegType from )
 /* div eax by r32 to edx:eax */
 void DIV32R( x86IntRegType from ) 
 {
-    RexB(0,from);
+	RexB(0,from);
 	write8( 0xF7 ); 
 	ModRM( 3, 6, from );
 }
