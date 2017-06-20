@@ -1700,10 +1700,10 @@ void psxBios_UnDeliverEvent() { // 0x20
 	pc0 = ra;
 }
 
-static void buopen(int mcd, u8 *ptr, u8 *cfg)
+static void buopen(int mcd, char *ptr, char *cfg)
 {
 	int i;
-	u8 *fptr = ptr;
+	char *fptr = ptr;
 
 	strcpy(FDesc[1 + mcd].name, Ra0+5);
 	FDesc[1 + mcd].offset = 0;
