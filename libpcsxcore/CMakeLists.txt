@@ -78,6 +78,7 @@ set(SRCS  psxbios.c
           r3000a.c
           psxinterpreter.c
           gte.c
+	  gte_divider.c
           psxhle.c
           debug.c
           psxcommon.c
